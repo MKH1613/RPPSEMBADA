@@ -436,13 +436,7 @@ Pastikan semua bagian saling terkait dan selaras dengan CP/TP yang diberikan. Pa
                 const apiKey = "AIzaSyB5-9Yi-aVkxaJUMUCA9MuNodDIkqh5ze0"; // <-- TEMPEL DI SINI
                 // ⬆️⬆️⬆️ PASTE KUNCI API ANDA DI SINI ⬆️⬆️⬆️
 
-                if (apiKey === "AIzaSyB5-9Yi-aVkxaJUMUCA9MuNodDIkqh5ze0" || apiKey === "") {
-                    showError("Kunci API belum dimasukkan. Harap edit file index.html dan masukkan Kunci API Anda.");
-                    setLoading(false);
-                    return;
-                }
-
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                               const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const payload = {
                     contents: [{ role: "user", parts: [{ text: userQuery }] }],
@@ -738,4 +732,5 @@ Pastikan semua bagian saling terkait dan selaras dengan CP/TP yang diberikan. Pa
     </script>
 </body>
 </html>
+
 
