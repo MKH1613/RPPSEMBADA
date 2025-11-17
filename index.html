@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Perangkat Pembelajaran</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Library untuk PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+        }
+        /* Style untuk output HTML yang di-generate AI */
+        .generated-content h3 {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            margin-top: 1.5rem; /* mt-6 */
+            margin-bottom: 0.5rem; /* mb-2 */
+            border-bottom: 1px solid #e5e7eb; /* border-b */
+            padding-bottom: 0.25rem; /* pb-1 */
+            color: #1d4ed8; /* blue-700 */
+        }
+        .generated-content h4 {
+            font-size: 1.1rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            margin-top: 1rem; /* mt-4 */
+            margin-bottom: 0.5rem; /* mb-2 */
+            color: #1e40af; /* blue-800 */
+        }
+        .generated-content p {
+            margin-bottom: 1rem; /* mb-4 */
+            line-height: 1.6; /* leading-relaxed */
+        }
+        .generated-content ul, .generated-content ol {
+            margin-left: 1.5rem; /* ml-6 */
+            margin-bottom: 1rem; /* mb-4 */
+            list-style-position: outside;
+        }
+        .generated-content ul {
+            list-style-type: disc;
+        }
+        .generated-content ol {
+            list-style-type: decimal;
+        }
+        .generated-content li {
+            margin-bottom: 0.5rem; /* mb-2 */
+        }
+        .generated-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+        .generated-content th, .generated-content td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .generated-content th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+        /* Animasi spinner */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            animation: spin 1s linear infinite;
+        }
+        /* Style untuk loading di tombol download */
+        .button-spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            width: 1rem;
+            height: 1rem;
+            display: inline-block;
+            animation: spin 0.8s linear infinite;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        
+        <!-- Judul Aplikasi -->
+        <header class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-center text-blue-700">Generator Perangkat Pembelajaran</h1>
+            <p class="text-center text-gray-600 mt-2">Drafter AI untuk RPP, Materi Ajar, LKPD (Kurikulum Merdeka & Pembelajaran Mendalam)</p>
+        </header>
+
+        <!-- Konten Utama: Form Input dan Output -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+            <!-- Kolom Form Input -->
+            <div class="md:col-span-1 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 border-b pb-2 text-blue-600">Informasi Pembelajaran</h2>
+                <form id="generation-form" class="space-y-4">
+                    
+                    <div>
+                        <label for="mapel" class="block text-sm font-medium text-gray-700 mb-1">Mata Pelajaran</label>
+                        <input type="text" id="mapel" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: IPA, Matematika" required>
+                    </div>
+
+                    <div>
+                        <label for="nama_sekolah" class="block text-sm font-medium text-gray-700 mb-1">Nama Sekolah (Unit Kerja)</label>
+                        <input type="text" id="nama_sekolah" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: SMPN 1 Contoh" required>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="nama_guru" class="block text-sm font-medium text-gray-700 mb-1">Nama Guru</label>
+                            <input type="text" id="nama_guru" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Nama lengkap" required>
+                        </div>
+                        <div>
+                            <label for="nip_guru" class="block text-sm font-medium text-gray-700 mb-1">NIP Guru</label>
+                            <input type="text" id="nip_guru" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="NIP (jika ada)">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="nama_kepala" class="block text-sm font-medium text-gray-700 mb-1">Nama Kepala Sekolah</label>
+                            <input type="text" id="nama_kepala" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Nama lengkap" required>
+                        </div>
+                        <div>
+                            <label for="nip_kepala" class="block text-sm font-medium text-gray-700 mb-1">NIP Kepala Sekolah</label>
+                            <input type="text" id="nip_kepala" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="NIP (jika ada)">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="kelas" class="block text-sm font-medium text-gray-700 mb-1">Kelas</label>
+                            <input type="text" id="kelas" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: IX, 10" required>
+                        </div>
+                        <div>
+                            <label for="pertemuan" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Pertemuan</label>
+                            <input type="number" id="pertemuan" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value="1" min="1" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="topik" class="block text-sm font-medium text-gray-700 mb-1">Topik Pembelajaran</label>
+                        <input type="text" id="topik" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: Struktur dan Fungsi Organ Reproduksi" required>
+                    </div>
+
+                    <div>
+                        <label for="cp" class="block text-sm font-medium text-gray-700 mb-1">Capaian Pembelajaran (CP)</label>
+                        <textarea id="cp" rows="3" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan CP yang relevan" required></textarea>
+                    </div>
+
+                    <div>
+                        <label for="tp" class="block text-sm font-medium text-gray-700 mb-1">Tujuan Pembelajaran (TP)</label>
+                        <textarea id="tp" rows="4" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan 1 atau lebih TP (pisahkan dengan baris baru)" required></textarea>
+                    </div>
+
+                    <div>
+                        <label for="model" class="block text-sm font-medium text-gray-700 mb-1">Model Pembelajaran</label>
+                        <select id="model" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="Discovery Learning">Discovery Learning</option>
+                            <option value="Problem-Based Learning (PBL)">Problem-Based Learning (PBL)</option>
+                            <option value="Project-Based Learning (PjBL)">Project-Based Learning (PjBL)</option>
+                            <option value="Inquiry Learning">Inquiry Learning</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dimensi Profil Lulusan (Pilih)</label>
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div class="flex items-center">
+                                <input id="dim_kolaborasi" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" value="Kolaborasi">
+                                <label for="dim_kolaborasi" class="ml-2 text-gray-700">Kolaborasi</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="dim_iman" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" value="Keimanan dan Ketakwaan Terhadap Tuhan YME">
+                                <label for="dim_iman" class="ml-2 text-gray-700">Iman & Takwa</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="dim_mandiri" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" value="Kemandirian">
+                                <label for="dim_mandiri" class="ml-2 text-gray-700">Kemandirian</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="dim_warga" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" value="Kewargaan">
+                                <label for="dim_warga" class="ml-2 text-gray-700">Kewargaan</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="dim_sehat" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" value="Kesehatan">
+                                <label for="dim_sehat" class="ml-2 text-gray-700">Kesehatan</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="dim_kritis" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" value="Penalaran Kritis">
+                                <label for="dim_kritis" class="ml-2 text-gray-700">Penalaran Kritis</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="dim_komunikasi" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" value="Komunikasi">
+                                <label for="dim_komunikasi" class="ml-2 text-gray-700">Komunikasi</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="dim_kreatif" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" value="Kreativitas">
+                                <label for="dim_kreatif" class="ml-2 text-gray-700">Kreativitas</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="generate-btn" class="w-full bg-blue-600 text-white font-semibold p-3 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center transition duration-150 ease-in-out">
+                        <span id="btn-text">Buat Perangkat Pembelajaran</span>
+                        <div id="btn-loader" class="spinner hidden ml-3"></div>
+                    </button>
+                </form>
+                
+                <!-- Notifikasi Error -->
+                <div id="error-message" class="hidden mt-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded-md"></div>
+            </div>
+
+            <!-- Kolom Output -->
+            <div class="md:col-span-2">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    
+                    <!-- Tombol Download -->
+                    <div class="p-4 bg-gray-50 border-b border-gray-200 flex gap-3 justify-end">
+                        <button id="download-word" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center" disabled>
+                            <span class="btn-download-text">Download .doc</span>
+                            <span class="btn-download-loader hidden"><span class="button-spinner"></span>Memproses...</span>
+                        </button>
+                        <button id="download-pdf" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center" disabled>
+                            <span class="btn-download-text">Download .pdf</span>
+                            <span class="btn-download-loader hidden"><span class="button-spinner"></span>Memproses...</span>
+                        </button>
+                    </div>
+
+                    <!-- Tab Navigasi -->
+                    <div class="border-b border-gray-200">
+                        <nav id="tabs" class="flex -mb-px">
+                            <button data-tab="rpp" class="tab-btn w-1/3 p-4 text-center font-medium border-b-2 border-blue-500 text-blue-600">RPP</button>
+                            <button data-tab="materi" class="tab-btn w-1/3 p-4 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">Materi Ajar</button>
+                            <button data-tab="lkpd" class="tab-btn w-1/3 p-4 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">LKPD</button>
+                        </nav>
+                    </div>
+
+                    <!-- Konten Tab -->
+                    <div id="output-container" class="p-6 md:p-8 min-h-[600px] generated-content">
+                        <!-- Placeholder awal -->
+                        <div id="placeholder" class="flex flex-col items-center justify-center h-full text-center text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p class="mt-4 text-lg">Hasil generasi AI akan muncul di sini.</p>
+                            <p class="text-sm">Silakan isi form di sebelah kiri dan klik "Buat" untuk memulai.</p>
+                        </div>
+                        
+                        <!-- Konten dinamis -->
+                        <div id="rpp-content" class="tab-content"></div>
+                        <div id="materi-content" class="tab-content hidden"></div>
+                        <div id="lkpd-content" class="tab-content hidden"></div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Inisialisasi jsPDF dari window
+        const { jsPDF } = window.jspdf;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('generation-form');
+            const generateBtn = document.getElementById('generate-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnLoader = document.getElementById('btn-loader');
+            const errorMessage = document.getElementById('error-message');
+            
+            const tabsContainer = document.getElementById('tabs');
+            const outputContainer = document.getElementById('output-container');
+            const placeholder = document.getElementById('placeholder');
+
+            // Tombol Download
+            const downloadWordBtn = document.getElementById('download-word');
+            const downloadPdfBtn = document.getElementById('download-pdf');
+            
+            const tabContents = {
+                rpp: document.getElementById('rpp-content'),
+                materi: document.getElementById('materi-content'),
+                lkpd: document.getElementById('lkpd-content')
+            };
+            
+            const allTabs = tabsContainer.querySelectorAll('.tab-btn');
+            const allTabContents = outputContainer.querySelectorAll('.tab-content');
+
+            // --- Logika Tab ---
+            tabsContainer.addEventListener('click', (e) => {
+                const clickedTab = e.target.closest('.tab-btn');
+                if (!clickedTab) return;
+
+                const tabName = clickedTab.dataset.tab;
+
+                // Update style tab
+                allTabs.forEach(tab => {
+                    tab.classList.remove('border-blue-500', 'text-blue-600');
+                    tab.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                });
+                clickedTab.classList.add('border-blue-500', 'text-blue-600');
+                clickedTab.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+
+                // Update konten
+                allTabContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                if (tabContents[tabName]) {
+                    tabContents[tabName].classList.remove('hidden');
+                }
+                
+                // Sembunyikan placeholder jika ada konten
+                placeholder.classList.add('hidden');
+            });
+
+            // --- Logika Form Submit ---
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                handleGenerate();
+            });
+
+            // --- Logika Tombol Download ---
+            downloadWordBtn.addEventListener('click', handleDownloadWord);
+            downloadPdfBtn.addEventListener('click', handleDownloadPdf);
+
+            // --- Fungsi Panggil API ---
+            async function handleGenerate() {
+                // 1. Kumpulkan data input
+                const mapel = document.getElementById('mapel').value;
+                const kelas = document.getElementById('kelas').value;
+                const pertemuan = document.getElementById('pertemuan').value;
+                const topik = document.getElementById('topik').value;
+                const cp = document.getElementById('cp').value;
+                const tp = document.getElementById('tp').value;
+                const model = document.getElementById('model').value;
+
+                const namaSekolah = document.getElementById('nama_sekolah').value;
+                const namaGuru = document.getElementById('nama_guru').value;
+                const nipGuru = document.getElementById('nip_guru').value || '-';
+                const namaKepala = document.getElementById('nama_kepala').value;
+                const nipKepala = document.getElementById('nip_kepala').value || '-';
+
+                const selectedDimensions = [];
+                document.querySelectorAll('input[type="checkbox"]:checked').forEach((cb) => {
+                    selectedDimensions.push(cb.value);
+                });
+
+                if (!mapel || !kelas || !topik || !cp || !tp || !namaSekolah || !namaGuru || !namaKepala) {
+                    showError("Harap isi semua bidang yang wajib diisi (Nama, Sekolah, Mapel, dll).");
+                    return;
+                }
+
+                // 2. Tampilkan status loading
+                setLoading(true);
+                clearOutput();
+                
+                // 3. Buat prompt untuk AI
+                const systemPrompt = `Anda adalah asisten ahli desain kurikulum untuk Indonesia, yang berspesialisasi dalam Kurikulum Merdeka dan pendekatan Pembelajaran Mendalam (Deep Learning). Tugas Anda adalah membuat paket perangkat pembelajaran yang lengkap, koheren, dan praktis berdasarkan masukan guru. Gunakan bahasa Indonesia yang formal dan profesional. Anda HARUS menghasilkan output dalam format JSON yang valid sesuai skema yang diminta, di mana semua teks konten adalah string HTML yang aman.`;
+
+                const userQuery = `Buatkan perangkat pembelajaran lengkap untuk:
+- Mata Pelajaran: ${mapel}
+- Kelas: ${kelas}
+- Topik: ${topik}
+- Jumlah Pertemuan: ${pertemuan}
+- Capaian Pembelajaran: ${cp}
+- Tujuan Pembelajaran: ${tp}
+- Model Pembelajaran: ${model}
+- Dimensi Profil Lulusan yang difokuskan: ${selectedDimensions.join(', ') || 'Tidak ada'}
+- Informasi Identitas:
+  - Nama Sekolah: ${namaSekolah}
+  - Nama Guru: ${namaGuru}
+  - NIP Guru: ${nipGuru}
+  - Nama Kepala Sekolah: ${namaKepala}
+  - NIP Kepala Sekolah: ${nipKepala}
+
+Harap hasilkan konten untuk tiga bagian dalam format HTML:
+1.  **RPP (Rencana Pelaksanaan Pembelajaran):**
+    - Buat bagian **Identitas RPP** (Nama Sekolah, Mapel, Kelas, Topik, Alokasi Waktu, Nama Guru, NIP Guru).
+    - Buat kegiatan pendahuluan, inti, dan penutup.
+    - Kegiatan inti HARUS mengikuti sintaks model pembelajaran "${model}".
+    - Integrasikan pendekatan Pembelajaran Mendalam (Memahami, Mengaplikasi, Merefleksi).
+    - Integrasikan dimensi profil lulusan yang dipilih ke dalam kegiatan.
+    - Masukkan 3 jenis asesmen (Diagnostik, Formatif, dan Sumatif) ke dalam RPP sebagai bagian terpisah.
+    - Buat bagian **Lembar Pengesahan** di akhir RPP, yang mencantumkan tempat/tanggal (kosong), Nama Guru/NIP, dan Nama Kepala Sekolah/NIP, dengan ruang untuk tanda tangan.
+2.  **Materi Ajar:**
+    - Buat ringkasan materi ajar yang jelas dan ringkas untuk topik "${topik}", sesuai untuk kelas ${kelas}.
+3.  **LKPD (Lembar Kerja Peserta Didik):**
+    - Buat 1-2 aktivitas LKPD yang terkait langsung dengan kegiatan inti di RPP.
+
+Pastikan semua bagian saling terkait dan selaras dengan CP/TP yang diberikan. Pastikan semua output teks ada di dalam string HTML yang aman.`;
+
+                // 4. Definisikan Skema JSON
+                const schema = {
+                    type: "OBJECT",
+                    properties: {
+                        rpp: {
+                            type: "OBJECT",
+                            properties: {
+                                identitas: { type: "STRING", description: "Teks HTML untuk bagian identitas RPP." },
+                                pendahuluan: { type: "STRING", description: "Teks HTML untuk kegiatan pendahuluan." },
+                                inti: { type: "STRING", description: "Teks HTML untuk kegiatan inti." },
+                                penutup: { type: "STRING", description: "Teks HTML untuk kegiatan penutup." },
+                                asesmen_diagnostik: { type: "STRING", description: "Teks HTML untuk asesmen diagnostik." },
+                                asesmen_formatif: { type: "STRING", description: "Teks HTML untuk asesmen formatif." },
+                                asesmen_sumatif: { type: "STRING", description: "Teks HTML untuk asesmen sumatif." },
+                                pengesahan: { type: "STRING", description: "Teks HTML untuk lembar pengesahan." }
+                            }
+                        },
+                        materi_ajar: { type: "STRING", description: "Teks HTML untuk ringkasan materi ajar." },
+                        lkpd: { type: "STRING", description: "Teks HTML untuk Lembar Kerja Peserta Didik." }
+                    },
+                    required: ["rpp", "materi_ajar", "lkpd"]
+                };
+
+                // 5. Konfigurasi dan Panggil API
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: schema,
+                        temperature: 0.7,
+                    }
+                };
+
+                try {
+                    const response = await fetchWithRetry(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`API Error ${response.status}: ${errorData.error?.message || response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts[0].text) {
+                        const jsonString = result.candidates[0].content.parts[0].text;
+                        const data = JSON.parse(jsonString);
+                        // 6. Tampilkan hasil
+                        displayOutput(data);
+                    } else {
+                        let reason = result.candidates?.[0]?.finishReason || "Tidak diketahui";
+                        let message = "Gagal menghasilkan konten.";
+                        if (reason === "SAFETY") {
+                            message = "Respons diblokir karena alasan keamanan. Coba ubah prompt Anda.";
+                        } else if (reason === "RECITATION") {
+                             message = "Respons diblokir karena sitasi. Coba ubah prompt Anda.";
+                        } else if (result.promptFeedback) {
+                            message = `Prompt diblokir: ${result.promptFeedback.blockReason}`;
+                        }
+                        throw new Error(message);
+                    }
+
+                } catch (error) {
+                    console.error("Error during generation:", error);
+                    showError(error.message || "Terjadi kesalahan. Silakan coba lagi.");
+                } finally {
+                    // 7. Hentikan loading
+                    setLoading(false);
+                }
+            }
+
+            // --- Fungsi Helper ---
+
+            function setLoading(isLoading) {
+                if (isLoading) {
+                    generateBtn.disabled = true;
+                    btnText.classList.add('hidden');
+                    btnLoader.classList.remove('hidden');
+                } else {
+                    generateBtn.disabled = false;
+                    btnText.classList.remove('hidden');
+                    btnLoader.classList.add('hidden');
+                }
+            }
+
+            function setDownloadButtonLoading(button, isLoading) {
+                const text = button.querySelector('.btn-download-text');
+                const loader = button.querySelector('.btn-download-loader');
+                if (isLoading) {
+                    button.disabled = true;
+                    text.classList.add('hidden');
+                    loader.classList.remove('hidden');
+                } else {
+                    button.disabled = false;
+                    text.classList.remove('hidden');
+                    loader.classList.add('hidden');
+                }
+            }
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.remove('hidden');
+            }
+
+            function clearOutput() {
+                errorMessage.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                
+                // Matikan tombol download
+                downloadWordBtn.disabled = true;
+                downloadPdfBtn.disabled = true;
+                
+                Object.values(tabContents).forEach(content => {
+                    content.innerHTML = '';
+                    content.classList.add('hidden');
+                });
+                
+                // Reset ke tab RPP
+                allTabs.forEach((tab, index) => {
+                    const isRppTab = index === 0;
+                    tab.classList.toggle('border-blue-500', isRppTab);
+                    tab.classList.toggle('text-blue-600', isRppTab);
+                    tab.classList.toggle('border-transparent', !isRppTab);
+                    tab.classList.toggle('text-gray-500', !isRppTab);
+                });
+                
+                tabContents.rpp.classList.remove('hidden');
+            }
+
+            function displayOutput(data) {
+                clearOutput(); 
+                placeholder.classList.add('hidden');
+                
+                // Aktifkan tombol download
+                downloadWordBtn.disabled = false;
+                downloadPdfBtn.disabled = false;
+
+                // Isi konten RPP
+                tabContents.rpp.innerHTML = `
+                    <h3>Identitas RPP</h3>
+                    ${data.rpp.identitas || "<p>Tidak ada konten</p>"}
+                    <h3>Kegiatan Pendahuluan</h3>
+                    ${data.rpp.pendahuluan || "<p>Tidak ada konten</p>"}
+                    <h3>Kegiatan Inti</h3>
+                    ${data.rpp.inti || "<p>Tidak ada konten</p>"}
+                    <h3>Kegiatan Penutup</h3>
+                    ${data.rpp.penutup || "<p>Tidak ada konten</p>"}
+                    <h3>Asesmen</h3>
+                    <h4>Asesmen Diagnostik</h4>
+                    ${data.rpp.asesmen_diagnostik || "<p>Tidak ada konten</p>"}
+                    <h4>Asesmen Formatif</h4>
+                    ${data.rpp.asesmen_formatif || "<p>Tidak ada konten</p>"}
+                    <h4>Asesmen Sumatif</h4>
+                    ${data.rpp.asesmen_sumatif || "<p>Tidak ada konten</p>"}
+                    <h3>Lembar Pengesahan</h3>
+                    ${data.rpp.pengesahan || "<p>Tidak ada konten</p>"}
+                `;
+                
+                // Isi konten Materi Ajar
+                tabContents.materi.innerHTML = data.materi_ajar || "<p>Tidak ada konten</p>";
+
+                // Isi konten LKPD
+                tabContents.lkpd.innerHTML = data.lkpd || "<p>Tidak ada konten</p>";
+                
+                // Tampilkan tab RPP secara default
+                tabContents.rpp.classList.remove('hidden');
+            }
+
+            // Fungsi fetch dengan retry (exponential backoff)
+            async function fetchWithRetry(url, options, retries = 3, delay = 1000, backoff = 2) {
+                let lastError;
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        const res = await fetch(url, options);
+                        if (res.status === 429 || (res.status >= 500 && res.status <= 599)) {
+                            throw new Error(`Server error or rate limit: ${res.status}`);
+                        }
+                        return res; // Sukses
+                    } catch (error) {
+                        lastError = error;
+                        await new Promise(resolve => setTimeout(resolve, delay * Math.pow(backoff, i)));
+                    }
+                }
+                throw lastError;
+            }
+
+            // --- Fungsi Download ---
+
+            function getActiveTabContent() {
+                const activeTabBtn = tabsContainer.querySelector('.border-blue-500');
+                const activeTabName = activeTabBtn.dataset.tab; // 'rpp', 'materi', 'lkpd'
+                const activeContent = tabContents[activeTabName];
+                return { element: activeContent, name: activeTabName };
+            }
+
+            function handleDownloadWord() {
+                const { element, name } = getActiveTabContent();
+                if (!element) return;
+
+                setDownloadButtonLoading(downloadWordBtn, true);
+
+                // Ambil style internal untuk di-embed di file Word
+                const styles = document.querySelector('style').innerHTML;
+
+                const htmlContent = `
+                    <!DOCTYPE html>
+                    <html lang="id">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>${name}</title>
+                        <style>
+                            /* Reset dasar untuk Word */
+                            body { 
+                                font-family: 'Times New Roman', Times, serif; 
+                                margin: 2cm; 
+                                font-size: 12pt;
+                            }
+                            /* Salin style yang relevan dari <style> */
+                            ${styles}
+                            /* Paksa beberapa style agar lebih ramah Word */
+                            .generated-content h3 {
+                                color: #000000;
+                                border-bottom: 1px solid #000000;
+                            }
+                            .generated-content h4 {
+                                color: #000000;
+                            }
+                            .generated-content table {
+                                border-collapse: collapse;
+                                width: 100%;
+                            }
+                            .generated-content th, .generated-content td {
+                                border: 1px solid #000000;
+                                padding: 5px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="generated-content">
+                            ${element.innerHTML}
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+                const blob = new Blob(['\ufeff', htmlContent], {
+                    type: 'application/msword'
+                });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${name}_perangkat_pembelajaran.doc`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                setDownloadButtonLoading(downloadWordBtn, false);
+            }
+
+            async function handleDownloadPdf() {
+                const { element, name } = getActiveTabContent();
+                if (!element) return;
+
+                setDownloadButtonLoading(downloadPdfBtn, true);
+
+                try {
+                    const canvas = await html2canvas(element, { 
+                        scale: 2, // Resolusi lebih tinggi
+                        useCORS: true 
+                    });
+                    
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4'); // A4, portrait, milimeter
+                    
+                    const pdfPageWidth = pdf.internal.pageSize.getWidth();
+                    const pdfPageHeight = pdf.internal.pageSize.getHeight();
+                    const margin = 10; // 10mm margin
+                    
+                    const usableWidth = pdfPageWidth - (margin * 2);
+                    const usableHeight = pdfPageHeight - (margin * 2);
+                    
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const imgTotalHeight = (imgProps.height * usableWidth) / imgProps.width;
+
+                    let imgHeightLeft = imgTotalHeight;
+                    let position = margin;
+
+                    // Tambahkan halaman pertama
+                    pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgTotalHeight);
+                    imgHeightLeft -= usableHeight;
+
+                    // Tambahkan halaman berikutnya jika perlu
+                    while (imgHeightLeft > 0) {
+                        pdf.addPage();
+                        // Hitung posisi y negatif untuk "menarik" gambar ke atas
+                        position = -(imgTotalHeight - imgHeightLeft) + margin;
+                        pdf.addImage(imgData, 'PNG', margin, position, usableWidth, imgTotalHeight);
+                        imgHeightLeft -= usableHeight;
+                    }
+                    
+                    pdf.save(`${name}_perangkat_pembelajaran.pdf`);
+
+                } catch (error) {
+                    console.error("Error generating PDF:", error);
+                    showError("Gagal membuat PDF. Coba lagi.");
+                } finally {
+                    setDownloadButtonLoading(downloadPdfBtn, false);
+                }
+            }
+
+        });
+    </script>
+</body>
+</html>
