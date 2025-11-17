@@ -430,8 +430,18 @@ Pastikan semua bagian saling terkait dan selaras dengan CP/TP yang diberikan. Pa
                     required: ["rpp", "materi_ajar", "lkpd"]
                 };
 
-                // 5. Konfigurasi dan Panggil API
-                const apiKey = "";
+                // 5. Konfigurasi dan Panggil API (CARA TIDAK AMAN)
+                
+                // ⬇️⬇️⬇️ PASTE KUNCI API ANDA DI SINI ⬇️⬇️⬇️
+                const apiKey = "PASTE_KUNCI_API_ANDA_TEPAT_DI_SINI"; // <-- TEMPEL DI SINI
+                // ⬆️⬆️⬆️ PASTE KUNCI API ANDA DI SINI ⬆️⬆️⬆️
+
+                if (apiKey === "PASTE_KUNCI_API_ANDA_TEPAT_DI_SINI" || apiKey === "") {
+                    showError("Kunci API belum dimasukkan. Harap edit file index.html dan masukkan Kunci API Anda.");
+                    setLoading(false);
+                    return;
+                }
+
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
                 const payload = {
