@@ -445,14 +445,10 @@ Hasilkan JSON dengan key: "rpp", "materi_ajar", "lkpd". Semua value adalah strin
 
                 // --- PANGGIL API (GANTI API KEY DI SINI) ---
                 // ⬇️⬇️⬇️ MASUKKAN API KEY DI BAWAH INI ⬇️⬇️⬇️
-                const apiKey = "PASTE_KUNCI_API_ANDA_TEPAT_DI_SINI"; 
+                const apiKey = "AIzaSyB5-9Yi-aVkxaJUMUCA9MuNodDIkqh5ze0"; 
                 // ⬆️⬆️⬆️ ------------------------------- ⬆️⬆️⬆️
 
-                if (apiKey === "PASTE_KUNCI_API_ANDA_TEPAT_DI_SINI" || !apiKey) {
-                    showError("API Key belum dimasukkan. Silakan edit kode index.html baris 451.");
-                    setLoading(false);
-                    return;
-                }
+    
 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
@@ -638,3 +634,4 @@ Hasilkan JSON dengan key: "rpp", "materi_ajar", "lkpd". Semua value adalah strin
     </script>
 </body>
 </html>
+
