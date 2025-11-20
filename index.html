@@ -189,16 +189,12 @@
                         </div>
                     </div>
 
-                    <!-- Informasi Peserta Didik (Tambahan Baru) -->
+                    <!-- Informasi Peserta Didik (Gaya Belajar dihapus) -->
                     <div class="bg-green-50 p-3 rounded-md space-y-3">
                         <h3 class="text-sm font-bold text-green-800 uppercase">Profil Peserta Didik</h3>
                         <div>
                             <label class="block text-xs font-medium text-gray-700">Jumlah Siswa</label>
                             <input type="number" id="jumlah_siswa" class="w-full p-2 border border-gray-300 rounded text-sm" placeholder="Misal: 30" required>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700">Gaya Belajar / Karakteristik</label>
-                            <textarea id="gaya_belajar" rows="2" class="w-full p-2 border border-gray-300 rounded text-sm" placeholder="Misal: Sebagian besar Kinestetik, beberapa Visual..."></textarea>
                         </div>
                     </div>
 
@@ -364,10 +360,11 @@
                     mapel: document.getElementById('mapel').value,
                     kelas: document.getElementById('kelas').value,
                     topik: document.getElementById('topik').value,
-                    waktu: document.getElementById('alokasi_waktu').value, // Menggunakan ID baru
-                    jumlahPertemuan: document.getElementById('jumlah_pertemuan').value, // Input baru
+                    waktu: document.getElementById('alokasi_waktu').value, 
+                    jumlahPertemuan: document.getElementById('jumlah_pertemuan').value,
                     jumlahSiswa: document.getElementById('jumlah_siswa').value,
-                    gayaBelajar: document.getElementById('gaya_belajar').value || "Heterogen",
+                    // Gaya Belajar otomatis diset
+                    gayaBelajar: "Heterogen (Visual, Auditori, Kinestetik)", 
                     cp: document.getElementById('cp').value,
                     tp: document.getElementById('tp').value,
                     model: document.getElementById('model').value,
@@ -448,10 +445,14 @@ Hasilkan JSON dengan key: "rpp", "materi_ajar", "lkpd". Semua value adalah strin
 
                 // --- PANGGIL API (GANTI API KEY DI SINI) ---
                 // ⬇️⬇️⬇️ MASUKKAN API KEY DI BAWAH INI ⬇️⬇️⬇️
-                const apiKey = "AIzaSyB5-9Yi-aVkxaJUMUCA9MuNodDIkqh5ze0"; 
+                const apiKey = "PASTE_KUNCI_API_ANDA_TEPAT_DI_SINI"; 
                 // ⬆️⬆️⬆️ ------------------------------- ⬆️⬆️⬆️
 
-            
+                if (apiKey === "PASTE_KUNCI_API_ANDA_TEPAT_DI_SINI" || !apiKey) {
+                    showError("API Key belum dimasukkan. Silakan edit kode index.html baris 451.");
+                    setLoading(false);
+                    return;
+                }
 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
